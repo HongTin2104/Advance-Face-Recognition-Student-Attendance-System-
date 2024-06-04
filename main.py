@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 from PIL import Image, ImageTk
 from student import Student
+from train import Train
 import os
 class Face_Recognition_System:
     def __init__(self, root):
@@ -85,10 +86,10 @@ class Face_Recognition_System:
         img7 = img7.resize((220, 220), Image.LANCZOS)  # Replaced ANTIALIAS with LANCZOS
         self.photoimg7 = ImageTk.PhotoImage(img7)
 
-        b4 = Button(image=self.photoimg7, cursor="hand2")
+        b4 = Button(image=self.photoimg7, command=self.open_train_window,cursor="hand2")
         b4.place(x=1100, y=200, width=150, height=150)
 
-        b4_1 = Button(text="Train Face", cursor="hand2", font=("times new roman", 15, "bold"), bg="pink",
+        b4_1 = Button(text="Train Data", command=self.open_train_window, cursor="hand2", font=("times new roman", 15, "bold"), bg="pink",
                       fg="white")
         b4_1.place(x=1100, y=340, width=150, height=40)
 
@@ -139,6 +140,12 @@ class Face_Recognition_System:
         root_student = Tk()  # Tạo một cửa sổ mới cho file student
         obj_student = Student(root_student)
         root_student.mainloop()
+
+    def open_train_window(self):
+        self.root.destroy()  # Đóng cửa sổ của file main
+        root_train = Tk()  # Tạo một cửa sổ mới cho file student
+        obj_student = Train(root_train)
+        root_train.mainloop()
 
 if __name__ == '__main__':
     root = Tk()
