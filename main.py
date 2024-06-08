@@ -3,13 +3,13 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 from student import Student
 from train import Train
+from face_recognition import Face_Recognition
 import os
 class Face_Recognition_System:
     def __init__(self, root):
         self.root = root
         self.root.geometry("1530x790+0+0")
         self.root.title("Face Recognition System")  # Corrected the typo here
-
 
 
         # Load the image 1
@@ -62,10 +62,10 @@ class Face_Recognition_System:
         img5 = img5.resize((220, 220), Image.LANCZOS)  # Replaced ANTIALIAS with LANCZOS
         self.photoimg5 = ImageTk.PhotoImage(img5)
 
-        b2 = Button(image=self.photoimg5, cursor="hand2")
+        b2 = Button(image=self.photoimg5, command=self.open_FR_window, cursor="hand2")
         b2.place(x=500, y=200, width=150, height=150)
 
-        b2_1 = Button(text="Face Detector", cursor="hand2", font=("times new roman", 15, "bold"), bg="pink",
+        b2_1 = Button(text="Face Detector", command=self.open_FR_window,cursor="hand2", font=("times new roman", 15, "bold"), bg="pink",
                       fg="white")
         b2_1.place(x=500, y=340, width=150, height=40)
 
@@ -77,7 +77,7 @@ class Face_Recognition_System:
         b3 = Button(image=self.photoimg6, cursor="hand2")
         b3.place(x=800, y=200, width=150, height=150)
 
-        b3_1 = Button(text="Face Detector", cursor="hand2", font=("times new roman", 15, "bold"), bg="pink",
+        b3_1 = Button(text="Attendance", cursor="hand2", font=("times new roman", 15, "bold"), bg="pink",
                       fg="white")
         b3_1.place(x=800, y=340, width=150, height=40)
 
@@ -146,6 +146,13 @@ class Face_Recognition_System:
         root_train = Tk()  # Tạo một cửa sổ mới cho file student
         obj_student = Train(root_train)
         root_train.mainloop()
+
+    def open_FR_window(self):
+        self.root.destroy()  # Đóng cửa sổ của file main
+        root_FR = Tk()  # Tạo một cửa sổ mới cho file student
+        obj_student = Face_Recognition(root_FR)
+        root_FR.mainloop()
+
 
 if __name__ == '__main__':
     root = Tk()
