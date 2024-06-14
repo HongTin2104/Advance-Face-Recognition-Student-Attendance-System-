@@ -1,10 +1,9 @@
-
-## Chay Bth
 import numpy as np
 import os
-from tkinter import *
-from tkinter import ttk
+import tkinter
+import customtkinter as ctk
 from PIL import Image, ImageTk
+from tkinter import PhotoImage
 from tkinter import messagebox
 import pypyodbc as pyodbc
 import cv2
@@ -14,12 +13,30 @@ class Train:
         self.root = root
         self.root.geometry("1530x790+0+0")
         self.root.title("Train Data")
+        font1 = ('Arial', 12, 'bold')
+        # Load and set the background image
+        self.bg_image = Image.open("Images/background.jpg")  # replace with your image file
+        self.bg_image = self.bg_image.resize((1920, 1020),
+                                             Image.Resampling.LANCZOS)  # Use Image.Resampling.LANCZOS instead of Image.ANTIALIAS
+        self.bg_photo = ImageTk.PhotoImage(self.bg_image)
 
-        title_lbl = Label(text="TRAIN DATA SET", font=("times new roman", 35, "bold"), fg="pink")
-        title_lbl.place(x=0, y=0, width=1530, height=45)
+        self.bg_label = tkinter.Label(self.root, image=self.bg_photo)
+        self.bg_label.place(x=0, y=0, width=1920, height=1020)
 
-        b6 = Button(self.root, command=self.train_classifier, text="Train data", cursor="hand2", font=("times new roman", 12, "bold"), bg="pink", fg="black")
-        b6.place(x=0, y=100, width=1530, height=100)
+        title_lbl = tkinter.Label(self.root, text="HUẤN LUYỆN MÔ HÌNH", font=("times new roman", 28, "bold"),
+                                  fg="#EE6AA7")
+        title_lbl.place(x=0, y=0, width=2000, height=45)
+
+        back_btn = ctk.CTkButton(self.root, text="Trở Lại", font=('Arial', 16, 'bold'), compound="top",
+                                 command=self.open_main_window, width=90, height=36, border_width=0, bg_color='white',
+                                 corner_radius=8, fg_color="#EE6AA7", text_color="black", hover_color="white")
+        back_btn.place(x=0, y=0)
+
+
+        b6 = ctk.CTkButton(self.root, text="Huấn Luyện", font=font1,compound="top",
+                                 command=self.train_classifier, width=100, height=80, border_width=0,
+                                 corner_radius=8, fg_color="darkblue", text_color="white", hover_color="BLACK")
+        b6.place(x=200, y=400, anchor=tkinter.CENTER)
 
     def train_classifier(self):
         data_dir = "Data"
@@ -51,12 +68,15 @@ class Train:
 
         clf.write("classifier.xml")
         cv2.destroyAllWindows()
-        messagebox.showinfo("Result", "Training datasets completed")
+        messagebox.showinfo("Thông Báo", "Huấn luyện mô hình thành công!")
+
+    def open_main_window(self):
+        self.root.destroy()  # Đóng cửa sổ của file student
+        import main  # Import file main
+        main.open_main_window()
 
 
-
-
-if __name__ == '__main__':
-    root = Tk()
-    obj = Train(root)
+def open_train_window():
+    root = ctk.CTk()
+    app = Train(root)
     root.mainloop()
