@@ -1,28 +1,42 @@
-
-from tkinter import *
-from tkinter import ttk
+import datetime
+import re
+from tkcalendar import DateEntry
 from PIL import Image, ImageTk
 from tkinter import messagebox
+import customtkinter as ctk
 import pypyodbc as pyodbc
+import tkinter
 import cv2
+from tkinter import *
+from tkinter import ttk
+import tkinter as tk
+
 
 class Student:
     def __init__(self, root):
         self.root = root
         self.root.geometry("1530x790+0+0")
-        self.root.title("Student Management")  # Corrected the typo here
+        self.root.config(bg='#161C25')
+        # self.root.resizable(False, False)
+        self.root.title("Student Management")
 
+
+
+        font1 = ('Arial', 16, 'bold')
+        font2 = ('Arial', 20, 'bold')
+
+        main = self.root
 
         # variables
-
         self.var_dep = StringVar()
-        self.var_course = StringVar()
+        # self.var_course = StringVar()
         self.var_year = StringVar()
         self.var_semester = StringVar()
         self.var_std_id = StringVar()
         self.var_std_name = StringVar()
-        self.var_div = StringVar()
-        self.var_roll = StringVar()
+        self.var_class = StringVar()
+        # self.var_div = StringVar()
+        # self.var_roll = StringVar()
         self.var_gender = StringVar()
         self.var_dob = StringVar()
         self.var_email = StringVar()
@@ -30,311 +44,303 @@ class Student:
         self.var_address = StringVar()
         self.var_teacher = StringVar()
 
+        title_lbl = tkinter.Label(text="HỆ THỐNG QUẢN LÝ SINH VIÊN", font=("times new roman", 28, "bold"), fg="#EE6AA7")
+        title_lbl.place(x=0, y=0, width=2000, height=45)
 
+        # frame left
 
-        # title
-        title_lbl = Label(text="STUDENT MANAGEMENT SYSTEM", font=("times new roman", 35, "bold"), fg="pink")
-        title_lbl.place(x=0, y=0, width=1530, height=45)
+        lbl_frame1 = ctk.CTkLabel(main, font=font2, text="Chi Tiết Sinh Viên:", text_color='#fff')
+        lbl_frame1.place(x=25, y=60)
+        frame1 = ctk.CTkFrame(main, bg_color='#131314', fg_color='#292933', corner_radius=10, border_width=2, border_color='#EE6AA7',
+                              width=700, height=680)
+        frame1.place(x=25, y=85)
 
-        #main frame
-        main_frame=Frame(bd=2,bg="pink")
-        main_frame.place(x=0,y=50,width=1600,height=1000)
+        # Student ID entry
+        lbl_ID = ctk.CTkLabel(frame1, font=font1, text="Mã Sinh Viên:", text_color='#fff')
+        lbl_ID.place(x=40, y=70)
 
-        #left label frame
-        Left_frame=LabelFrame(main_frame, bg="white", bd=2, relief=RIDGE,text="Student Detail", font=("times new roman", 20, "bold"))
-        Left_frame.place(x=10, y=10, width=730, height=710)
+        entry_ID = ctk.CTkEntry(frame1, font=font1, text_color='#000', fg_color='#fff', border_color='#B2016C', border_width=2, width=170, textvariable=self.var_std_id)
+        entry_ID.place(x=160, y=70)
 
-        # Image 3
-        # img2 = Image.open("Images/sbackground.jpg")  # Ensure the path is correct
-        # img2 = img2.resize((720, 130), Image.LANCZOS)  # Replaced ANTIALIAS with LANCZOS
-        # self.photoimg2 = ImageTk.PhotoImage(img2)
-        #
-        # # Place the image in a label
-        # f_lbl2 = Label(self.root, image=self.photoimg2)
-        # f_lbl2.place(x=18, y=90, width=715, height=130)
+        # Student name entry
 
-        # Current course information
-        current_course_frame = LabelFrame(Left_frame,bd=2,bg="white", relief=RIDGE, text="Current course information", font=("times new roman", 15, "bold"))
-        current_course_frame.place(x=5,y=130,width=715,height=130)
+        lbl_name = ctk.CTkLabel(frame1, font=font1, text="Tên Sinh Viên:", text_color='#fff')
+        lbl_name.place(x=370, y=70)
 
-        # Department tetx box
-        dep_label = Label(current_course_frame, text="Department", font=("times new roman", 12, "bold"), bg="white")
-        dep_label.grid(row=0, column=0, padx=10, sticky=W)
-
-        dep_combo = ttk.Combobox(current_course_frame, textvariable=self.var_dep,font=("times new roman", 12, "bold"), state="readonly", width=20)
-        dep_combo["value"] = ("Select Department", "Computer", "IT", "Civil", "Mechanical")
-        dep_combo.current(0)
-        dep_combo.grid(row=0, column=1, padx=2, pady=10, sticky=W)
-
-        # Course combox
-        course_label = Label(current_course_frame, text="Course", font=("times new roman", 12, "bold"), bg="white")
-        course_label.grid(row=0, column=2, padx=10, sticky=W)
-
-        course_combo = ttk.Combobox(current_course_frame, textvariable=self.var_course, font=("times new roman", 12, "bold"), state="readonly", width=20)
-        course_combo["value"] = ("Select Course", "FE", "SE", "TE", "BE")
-        course_combo.current(0)
-        course_combo.grid(row=0, column=3, padx=2, pady=10, sticky=W)
-
-        # Year
-
-        year_label = Label(current_course_frame, text="Year", font=("times new roman", 12, "bold"), bg="white")
-        year_label.grid(row=1, column=0, padx=10, sticky=W)
-
-        year_combo = ttk.Combobox(current_course_frame, textvariable=self.var_year, font=("times new roman", 12, "bold"), state="readonly", width=20)
-        year_combo["value"] = ("Select Year", "20-21", "21-22", "22-23", "23-24")
-        year_combo.current(0)
-        year_combo.grid(row=1, column=1, padx=2, pady=10, sticky=W)
-
-        # Semester
-
-        semester_label = Label(current_course_frame, text="Semester", font=("times new roman", 12, "bold"), bg="white")
-        semester_label.grid(row=1, column=2, padx=10, sticky=W)
-
-        semester_combo = ttk.Combobox(current_course_frame, textvariable=self.var_semester, font=("times new roman", 12, "bold"), state="readonly", width=20)
-        semester_combo["value"] = ("Select Semester", "Semester-1", "Semester-2")
-        semester_combo.current(0)
-        semester_combo.grid(row=1, column=3, padx=2, pady=10, sticky=W)
-
-        # #Class student information
-        class_student_frame = LabelFrame(Left_frame,bd=2,bg="white", relief=RIDGE, text="Class student information", font=("times new roman", 15, "bold"))
-        class_student_frame.place(x=5,y=280,width=715, height=370)
-
-        # Student ID
-        studenID_label = Label(class_student_frame, text="Student ID:", font=("times new roman", 12, "bold"), bg="white")
-        studenID_label.grid(row=0, column=0, padx=10, pady=10, sticky=W)
-
-        studentID_entry = Entry(class_student_frame, textvariable=self.var_std_id, width=20, font=("times new roman", 12, "bold"))
-        studentID_entry.grid(row=0, column=1, padx=10, pady=10, sticky=W)
-
-        # Student name textbox
-
-        studen_name_label = Label(class_student_frame, text="Student name:", font=("times new roman", 12, "bold"),
-                               bg="white")
-        studen_name_label.grid(row=0, column=2, padx=10, pady=10, sticky=W)
-
-        student_name_entry = Entry(class_student_frame, textvariable=self.var_std_name, width=20, font=("times new roman", 12, "bold"))
-        student_name_entry.grid(row=0, column=3, padx=10, pady=10, sticky=W)
-
-        # Class division
-
-        class_div_label = Label(class_student_frame, text="Class division:", font=("times new roman", 12, "bold"),
-                                  bg="white")
-        class_div_label.grid(row=1, column=0, padx=10, pady=10, sticky=W)
-
-        class_div_entry = Entry(class_student_frame, textvariable=self.var_div, width=20, font=("times new roman", 12, "bold"))
-        class_div_entry.grid(row=1, column=1, padx=10, pady=10, sticky=W)
-
-        # Roll No
-
-        roll_no_label = Label(class_student_frame, text="Roll no:", font=("times new roman", 12, "bold"),
-                                  bg="white")
-        roll_no_label.grid(row=1, column=2, padx=10, pady=10, sticky=W)
-
-        roll_no_entry = Entry(class_student_frame, textvariable=self.var_roll,width=20, font=("times new roman", 12, "bold"))
-        roll_no_entry.grid(row=1, column=3, padx=10, pady=10, sticky=W)
+        entry_name = ctk.CTkEntry(frame1, font=font1, text_color='#000', fg_color='#fff', border_color='#B2016C',
+                                border_width=2, width=170, textvariable=self.var_std_name)
+        entry_name.place(x=500, y=70)
 
         # Gender combobox
 
-        gender_label = Label(class_student_frame, text="Gender", font=("times new roman", 12, "bold"), bg="white")
-        gender_label.grid(row=2, column=0, padx=10, sticky=W)
+        optionsG = ["Nam", "Nữ", "Khác"]
 
-        gender_combo = ttk.Combobox(class_student_frame, textvariable=self.var_gender, font=("times new roman", 12, "bold"), state="readonly",
-                                  width=15)
-        gender_combo["value"] = ("Select Gender", "Male", "Female", "Other")
-        gender_combo.current(0)
-        gender_combo.grid(row=2, column=1, padx=10, pady=10, sticky=W)
+        lbl_gender = ctk.CTkLabel(frame1, font=font1, text="Giới Tính:", text_color='#fff')
+        lbl_gender.place(x=40, y=135)
 
-        #DoB
-        dob_label = Label(class_student_frame, text="DoB:", font=("times new roman", 12, "bold"),
-                              bg="white")
-        dob_label.grid(row=2, column=2, padx=10, pady=10, sticky=W)
+        cbx_gender = ctk.CTkComboBox(frame1, font=font1, text_color='#000', fg_color='#fff', border_color='#B2016C',
+                                  dropdown_hover_color='#B2016C', button_hover_color='#B2016C', width=170,
+                                     variable=self.var_gender, values=optionsG, state='readonly')
+        cbx_gender.set("Chọn Giới Tính")
+        cbx_gender.place(x=160, y=135)
 
-        dob_entry = Entry(class_student_frame, width=20, textvariable=self.var_dob, font=("times new roman", 12, "bold"))
-        dob_entry.grid(row=2, column=3, padx=10, pady=10, sticky=W)
+        # DoB datetimepicker
 
-        # Email textbox
-        email_label = Label(class_student_frame, text="Email:", font=("times new roman", 12, "bold"),
-                          bg="white")
-        email_label.grid(row=3, column=0, padx=10, pady=10, sticky=W)
+        lbl_dob = ctk.CTkLabel(frame1, font=font1, text="Ngày Sinh:", text_color='#fff')
+        lbl_dob.place(x=370, y=135)
 
-        email_entry = Entry(class_student_frame, textvariable=self.var_email, width=20, font=("times new roman", 12, "bold"))
-        email_entry.grid(row=3, column=1, padx=10, pady=10, sticky=W)
+        entry_dob = ctk.CTkEntry(frame1, font=font1, text_color='#000', fg_color='#fff', border_color='#B2016C',
+                                border_width=2, width=170)
+        entry_dob.place(x=500, y=135)
 
-        # PhoneNo textbox
-        phone_label = Label(class_student_frame, text="Phone No:", font=("times new roman", 12, "bold"),
-                            bg="white")
-        phone_label.grid(row=3, column=2, padx=10, pady=10, sticky=W)
+        # Email entry
 
-        phone_entry = Entry(class_student_frame, textvariable=self.var_phone, width=20, font=("times new roman", 12, "bold"))
-        phone_entry.grid(row=3, column=3, padx=10, pady=10, sticky=W)
+        lbl_email = ctk.CTkLabel(frame1, font=font1, text="Email:", text_color='#fff')
+        lbl_email.place(x=40, y=200)
 
-        # Address
-        address_label = Label(class_student_frame, text="Address:", font=("times new roman", 12, "bold"),
-                            bg="white")
-        address_label.grid(row=4, column=0, padx=10, pady=10, sticky=W)
+        entry_email = ctk.CTkEntry(frame1, font=font1, text_color='#000', fg_color='#fff', border_color='#B2016C',
+                                 border_width=2, width=170, textvariable=self.var_email)
+        entry_email.place(x=160, y=200)
 
-        address_entry = Entry(class_student_frame, textvariable=self.var_address, width=20, font=("times new roman", 12, "bold"))
-        address_entry.grid(row=4, column=1, padx=10, pady=10, sticky=W)
+        # Phone No datetimepicker
 
-        # Teacher Name
+        lbl_phone = ctk.CTkLabel(frame1, font=font1, text="Số Điện Thoại:", text_color='#fff')
+        lbl_phone.place(x=370, y=200)
 
-        teacher_name_label = Label(class_student_frame, text="Teacher Name:", font=("times new roman", 12, "bold"),
-                            bg="white")
-        teacher_name_label.grid(row=4, column=2, padx=10, pady=10, sticky=W)
+        entry_phone = ctk.CTkEntry(frame1, font=font1, text_color='#000', fg_color='#fff', border_color='#B2016C',
+                                border_width=2, width=170, textvariable=self.var_phone)
+        entry_phone.place(x=500, y=200)
 
-        teacher_name_entry = Entry(class_student_frame, textvariable=self.var_teacher, width=20, font=("times new roman", 12, "bold"))
-        teacher_name_entry.grid(row=4, column=3, padx=10, pady=10, sticky=W)
+        # Address entry
 
-        # Radio buttons
+        lbl_address = ctk.CTkLabel(frame1, font=font1, text="Địa Chỉ:", text_color='#fff')
+        lbl_address.place(x=40, y=265)
+
+        entry_address = ctk.CTkEntry(frame1, font=font1, text_color='#000', fg_color='#fff', border_color='#B2016C',
+                                 border_width=2, width=170, textvariable=self.var_address)
+        entry_address.place(x=160, y=265)
+
+        # Teacher name entry
+
+        lbl_teacher = ctk.CTkLabel(frame1, font=font1, text="Tên Giảng Viên:", text_color='#fff')
+        lbl_teacher.place(x=370, y=265)
+
+        entry_teacher = ctk.CTkEntry(frame1, font=font1, text_color='#000', fg_color='#fff', border_color='#B2016C',
+                                border_width=2, width=170, textvariable=self.var_teacher)
+        entry_teacher.place(x=500, y=265)
+
+        # Class entry
+
+        lbl_class = ctk.CTkLabel(frame1, font=font1, text="Tên Lớp:", text_color='#fff')
+        lbl_class.place(x=40, y=330)
+
+        entry_class = ctk.CTkEntry(frame1, font=font1, text_color='#000', fg_color='#fff', border_color='#B2016C',
+                                     border_width=2, width=170, textvariable=self.var_class)
+        entry_class.place(x=160, y=330)
+
+        # Department combobox
+
+        optionsD = ["CNTT", "Kinh Tế", "Kỹ Thuật"]
+
+        lbl_depa = ctk.CTkLabel(frame1, font=font1, text="Chọn Tên Khoa:", text_color='#fff')
+        lbl_depa.place(x=370, y=330)
+
+        cbx_depa = ctk.CTkComboBox(frame1, font=font1, text_color='#000', fg_color='#fff', border_color='#B2016C',
+                                     dropdown_hover_color='#B2016C', button_hover_color='#B2016C', width=170,
+                                     variable=self.var_dep, values=optionsD, state='readonly')
+        cbx_depa.set("Chọn Tên Khoa")
+        cbx_depa.place(x=500, y=330)
+
+
+        # Year entry
+
+        optionsY = ["20-21", "21-22", "22-23", "23-24", "24-25"]
+
+        lbl_year = ctk.CTkLabel(frame1, font=font1, text="Năm Học:", text_color='#fff')
+        lbl_year.place(x=40, y=395)
+
+        cbx_year = ctk.CTkComboBox(frame1, font=font1, text_color='#000', fg_color='#fff', border_color='#B2016C',
+                                     dropdown_hover_color='#B2016C', button_hover_color='#B2016C', width=170,
+                                     variable=self.var_year, values=optionsY, state='readonly')
+        cbx_year.set("Chọn Năm Học")
+        cbx_year.place(x=160, y=395)
+
+        # Semester combobox
+
+        optionsK = ["Học Kỳ 1", "Học Kỳ 2", "Học Kỳ 3", "Học Kỳ 4", "Học Kỳ 5", "Học Kỳ 6","Học Kỳ 7", "Học Kỳ 8"]
+
+        lbl_year = ctk.CTkLabel(frame1, font=font1, text="Năm Học:", text_color='#fff')
+        lbl_year.place(x=370, y=395)
+
+        cbx_year = ctk.CTkComboBox(frame1, font=font1, text_color='#000', fg_color='#fff', border_color='#B2016C',
+                                   dropdown_hover_color='#B2016C', button_hover_color='#B2016C', width=170,
+                                   variable=self.var_semester, values=optionsK, state='readonly')
+        cbx_year.set("Chọn Học Kỳ")
+        cbx_year.place(x=500, y=395)
+
+        # Radio button
 
         self.var_radio1 = StringVar()
-        radioBtn1 = ttk.Radiobutton(class_student_frame, variable=self.var_radio1, text="Take Photo Sample", value="Yes")
-        radioBtn1.grid(row=6, column=0, padx=10, pady=10)
 
-        # self.var_radio2 = StringVar()
-        radioBtn2 = ttk.Radiobutton(class_student_frame, variable=self.var_radio1,text="No Photo Sample", value="No")
-        radioBtn2.grid(row=6, column=1)
+        rdb_p = ctk.CTkRadioButton(main, text="Lấy Ảnh Mẫu", fg_color='#B2016C', hover_color='#B2016C', font=font1,
+                                   variable=self.var_radio1, value="Yes")
+        rdb_np = ctk.CTkRadioButton(main, text="Không Lấy Ảnh Mẫu", fg_color='#B2016C', hover_color='#B2016C',
+                                    font=font1, variable=self.var_radio1, value="No")
+        rdb_p.place(x=60, y=550)
+        rdb_np.place(x=220, y=550)
 
-        # buttons frame
-        btn_frame = Frame(class_student_frame, bd=2, relief=RIDGE, bg="white")
-        btn_frame.place(x=2, y=260, width=705, height=80)
+        # Define labels and frames
+        lbl_frame2 = ctk.CTkLabel(root, font=font2, text="Tìm Kiếm Sinh Viên:", text_color='#fff')
+        lbl_frame2.place(x=800, y=60)
 
-        save_btn = Button(btn_frame, command=self.add_data,text="Save", width=18,font=("times new roman", 12, "bold"))
-        save_btn.grid(row=0, column=0)
+        frame2 = ctk.CTkFrame(root, bg_color='#131314', fg_color='#292933', corner_radius=10, border_width=2,
+                              border_color='#EE6AA7', width=700, height=680)
+        frame2.place(x=800, y=85)
 
-        update_btn = Button(btn_frame, command=self.update_data,text="Update", width=19, font=("times new roman", 12, "bold"))
-        update_btn.grid(row=0, column=1)
+        # Configure style
+        style = ttk.Style(frame2)
+        style.theme_use('clam')
+        style.configure('Treeview', font=font1, foreground='#fff', background='#fff', fieldbackground='#fff')
+        style.map('Treeview', background=[('selected', '#EE6AA7')])
 
-        delete_btn = Button(btn_frame, command=self.delete_data,text="Delete", width=19, font=("times new roman", 12, "bold"))
-        delete_btn.grid(row=0, column=2)
+        # Create the Treeview widget
+        self.tree = ttk.Treeview(frame2, height=15, show="headings")
 
-        reset_btn = Button(btn_frame, command=self.reset_data,text="Reset", width=18, font=("times new roman", 12, "bold"))
-        reset_btn.grid(row=0, column=3)
+        # Define columns
+        self.tree['columns'] = (
+            "Khoa", "Năm Học", "Học Kỳ", "Mã Sinh Viên", "Tên Sinh Viên", "Lớp", "Giới Tính", "Ngày Sinh", "Email",
+            "SĐT",
+            "Địa Chỉ", "Giáo Viên", "Ảnh Mẫu")
 
-        btn_frame1 = Frame(class_student_frame, bd=2, relief=RIDGE, bg="white")
-        btn_frame1.place(x=2, y=295, width=705, height=50)
+        # Format columns
+        self.tree.column('#0', width=0, stretch=tk.NO)
+        self.tree.column('Khoa', anchor=tk.CENTER, width=120)
+        self.tree.column('Năm Học', anchor=tk.CENTER, width=120)
+        self.tree.column('Học Kỳ', anchor=tk.CENTER, width=120)
+        self.tree.column('Mã Sinh Viên', anchor=tk.CENTER, width=100)
+        self.tree.column('Tên Sinh Viên', anchor=tk.CENTER, width=200)
+        self.tree.column('Lớp', anchor=tk.CENTER, width=150)
+        self.tree.column('Giới Tính', anchor=tk.CENTER, width=70)
+        self.tree.column('Ngày Sinh', anchor=tk.CENTER, width=100)
+        self.tree.column('Email', anchor=tk.W, width=200)
+        self.tree.column('SĐT', anchor=tk.CENTER, width=100)
+        self.tree.column('Địa Chỉ', anchor=tk.W, width=200)
+        self.tree.column('Giáo Viên', anchor=tk.W, width=150)
+        self.tree.column('Ảnh Mẫu', anchor=tk.CENTER, width=100)
 
-        take_photo_btn = Button(btn_frame1, command=self.generate_dataset, text="Take Photo Sample", width=38, font=("times new roman", 12, "bold"))
-        take_photo_btn.grid(row=0, column=0)
+        # Define headings
+        self.tree.heading('#0', text='', anchor=tk.CENTER)
+        self.tree.heading('Khoa', text='Khoa', anchor=tk.CENTER)
+        self.tree.heading('Năm Học', text='Năm Học', anchor=tk.CENTER)
+        self.tree.heading('Học Kỳ', text='Học Kỳ', anchor=tk.CENTER)
+        self.tree.heading('Mã Sinh Viên', text='Mã Sinh Viên', anchor=tk.CENTER)
+        self.tree.heading('Tên Sinh Viên', text='Tên Sinh Viên', anchor=tk.CENTER)
+        self.tree.heading('Lớp', text='Lớp', anchor=tk.CENTER)
+        self.tree.heading('Giới Tính', text='Giới Tính', anchor=tk.CENTER)
+        self.tree.heading('Ngày Sinh', text='Ngày Sinh', anchor=tk.CENTER)
+        self.tree.heading('Email', text='Email', anchor=tk.CENTER)
+        self.tree.heading('SĐT', text='SĐT', anchor=tk.CENTER)
+        self.tree.heading('Địa Chỉ', text='Địa Chỉ', anchor=tk.CENTER)
+        self.tree.heading('Giáo Viên', text='Giáo Viên', anchor=tk.CENTER)
+        self.tree.heading('Ảnh Mẫu', text='Ảnh Mẫu', anchor=tk.CENTER)
 
-        update_photo_btn = Button(btn_frame1, text="Update Photo Sample", width=38, font=("times new roman", 12, "bold"))
-        update_photo_btn.grid(row=0, column=2)
+        # Add vertical scrollbar
+        vsb = ttk.Scrollbar(frame2, orient="vertical", command=self.tree.yview)
+        vsb.place(x=830, y=20, height=330)  # Adjust placement as needed
+        self.tree.configure(yscrollcommand=vsb.set)
 
-        # Right label frame
-        right_frame = LabelFrame(main_frame, bg="white", bd=2, relief=RIDGE,text="Current Course Information", font=("times new roman", 20, "bold"))
-        right_frame.place(x=750, y=10, width=725, height=650)
+        # Add horizontal scrollbar
+        hsb = ttk.Scrollbar(frame2, orient="horizontal", command=self.tree.xview)
+        hsb.place(x=20, y=350, width=820)  # Adjust placement as needed
+        self.tree.configure(xscrollcommand=hsb.set)
 
-        # Image 3
-        img_right = Image.open("Images/sbackground1.jpg")  # Ensure the path is correct
-        img_right = img_right.resize((720, 130), Image.LANCZOS)  # Replaced ANTIALIAS with LANCZOS
-        self.photoimg_right = ImageTk.PhotoImage(img_right)
+        # Place the treeview
+        self.tree.place(x=20, y=20, width=820, height=330)
 
-        # Place the image in a label
-        f_lbl3 = Label(right_frame, image=self.photoimg_right)
-        f_lbl3.place(x=5, y=-5, width=710, height=130)
-
-        # search frame
-
-        search_frame = LabelFrame(right_frame, bd=2, bg="white", relief=RIDGE, text="Search System", font=("times new roman", 12, "bold"))
-        search_frame.place(x=5, y=135, width=710, height=80)
-
-        search_label = Label(search_frame, text="Search By:", font=("times new roman", 12, "bold"), bg="pink", fg="black")
-        search_label.grid(row=0, column=0, padx=10, pady=10, sticky=W)
-
-        search_combo = ttk.Combobox(search_frame, font=("times new roman", 12, "bold"), state="readonly",
-                                      width=10)
-        search_combo["value"] = ("Select", "Roll No", "Phone No")
-        search_combo.current(0)
-        search_combo.grid(row=0, column=1, padx=10, pady=10, sticky=W)
-
-        search_entry = Entry(search_frame, width=20, font=("times new roman", 12, "bold"))
-        search_entry.grid(row=0, column=2, padx=10, pady=10, sticky=W)
-
-        search_btn = Button(search_frame, text="Search", width=13, font=("times new roman", 12, "bold"))
-        search_btn.grid(row=0, column=3, padx=10)
-
-        show_all_btn = Button(search_frame, text="Show All", width=13, font=("times new roman", 12, "bold"))
-        show_all_btn.grid(row=0, column=4, padx=10)
-
-        #====================table===================
-
-        table_frame = Frame(right_frame, bd=2, bg="white", relief=RIDGE)
-        table_frame.place(x=5, y=260, width=710, height=250)
-
-        scroll_x = ttk.Scrollbar(table_frame, orient=HORIZONTAL)
-        scroll_y = ttk.Scrollbar(table_frame, orient=VERTICAL)
-
-        self.student_table = ttk.Treeview(table_frame, column=("dep", "course", "year", "sem", "id", "name", "div", "roll", "gender", "dob", "email", "phone", "address", "teacher", "photo"), xscrollcommand=scroll_x.set, yscrollcommand=scroll_y.set)
-
-        scroll_x.pack(side=BOTTOM, fill=X)
-        scroll_y.pack(side=RIGHT, fill=Y)
-        scroll_x.config(command=self.student_table.xview)
-        scroll_y.config(command=self.student_table.yview)
-
-
-
-        self.student_table.heading("dep", text="Department")
-        self.student_table.heading("course", text="Course")
-        self.student_table.heading("year", text="Year")
-        self.student_table.heading("sem", text="Semester")
-        self.student_table.heading("id", text="ID")
-        self.student_table.heading("name", text="Name")
-        self.student_table.heading("div", text="Division")
-        self.student_table.heading("roll", text="Roll No")
-        self.student_table.heading("gender", text="Gender")
-        self.student_table.heading("dob", text="DoB")
-        self.student_table.heading("email", text="Email")
-        self.student_table.heading("phone", text="Phone")
-        self.student_table.heading("address", text="Address")
-        self.student_table.heading("teacher", text="Teacher")
-        self.student_table.heading("photo", text="PhotoSampleStatus")
-        self.student_table["show"] = "headings"
-
-        self.student_table.column("dep", width=100)
-        self.student_table.column("course", width=100)
-        self.student_table.column("year", width=100)
-        self.student_table.column("sem", width=100)
-        self.student_table.column("id", width=100)
-        self.student_table.column("name", width=100)
-        self.student_table.column("div", width=100)
-        self.student_table.column("roll", width=100)
-        self.student_table.column("gender", width=100)
-        self.student_table.column("dob", width=100)
-        self.student_table.column("email", width=100)
-        self.student_table.column("phone", width=100)
-        self.student_table.column("address", width=100)
-        self.student_table.column("teacher", width=100)
-        self.student_table.column("photo", width=150)
-
-        self.student_table.pack(fill=BOTH, expand=1)
-        self.student_table.bind("<ButtonRelease>", self.get_cursor)
+        # Bind the treeview and fetch data
+        self.tree.bind("<ButtonRelease>", self.get_cursor)
         self.fetch_data()
 
-        # function decration
+        # buttons
 
+        btn_save = ctk.CTkButton(frame1, font=font1, text_color='#fff', text='Lưu', fg_color='#B2016C', command=self.add_data,
+                                 hover_color='#FF69B4', bg_color='#292933', cursor='hand2', corner_radius=5, width=200)
+        btn_save.place(x=40, y=525)
+
+        btn_update = ctk.CTkButton(frame1, font=font1, text_color='#fff', text='Cập Nhật', fg_color='#B2016C', command=self.update_data,
+                                 hover_color='#FF69B4', bg_color='#292933', cursor='hand2', corner_radius=5, width=200)
+        btn_update.place(x=255, y=525)
+
+        btn_delete = ctk.CTkButton(frame1, font=font1, text_color='#fff', text='Xóa', fg_color='#B2016C', command=self.delete_data,
+                                   hover_color='#FF69B4', bg_color='#292933', cursor='hand2', corner_radius=5,
+                                   width=200)
+        btn_delete.place(x=475, y=525)
+
+        btn_takeP = ctk.CTkButton(frame1, font=font1, text_color='#fff', text='Chụp Ảnh', fg_color='#B2016C', command=self.generate_dataset,
+                                   hover_color='#FF69B4', bg_color='#292933', cursor='hand2', corner_radius=5,
+                                   width=200)
+        btn_takeP.place(x=145, y=570)
+
+        btn_updateP = ctk.CTkButton(frame1, font=font1, text_color='#fff', text='Cập Nhật Ảnh', fg_color='#B2016C',
+                                   hover_color='#FF69B4', bg_color='#292933', cursor='hand2', corner_radius=5,
+                                   width=200)
+        btn_updateP.place(x=365, y=570)
+
+        back_btn = Button(command=self.open_main_window, text="Trở Lại", width=18, font=("times new roman", 12, "bold"))
+        back_btn = ctk.CTkButton(self.root, text="Trở Lại", font=font1, compound="top", bg_color='white',
+                                 command=self.open_main_window, width=90, height=37, border_width=0,
+                                 corner_radius=8, fg_color="#EE6AA7", text_color="black", hover_color="white")
+        back_btn.place(x=0, y=0)
+        # treeview
     def add_data(self):
-        if self.var_dep.get() == "Select Department" or self.var_std_name.get() == "" or self.var_std_id.get() == "":
-            messagebox.showerror("Error", "All fields are required", parent=self.root)
+
+        if (self.var_dep.get() == "Chọn Khoa" or
+                self.var_year.get() == "Chọn Năm" or
+                self.var_semester.get() == "Chọn Học Kỳ" or
+                self.var_std_name.get() == "" or
+                self.var_std_id.get() == "" or
+                self.var_gender.get() == "Chọn Giới Tính" or
+                self.var_email.get() == "" or
+                self.var_phone.get() == "" or
+                self.var_address.get() == "" or
+                self.var_teacher.get() == "" or
+                self.var_radio1.get() == ""):
+            messagebox.showerror("Lỗi", "Tất cả các trường là bắt buộc", parent=self.root)
         else:
+            # Kiểm tra các ô combobox đã được chọn đúng giá trị
+            if ("Chọn" in [self.var_dep.get(), self.var_year.get(), self.var_semester.get(),
+                           self.var_gender.get()]):
+                messagebox.showerror("Lỗi", "Vui lòng chọn một tùy chọn hợp lệ từ combobox.",
+                                     parent=self.root)
+                return
+
+            # Kiểm tra định dạng email
+            if not re.match(r"[^@]+@[^@]+\.[^@]+", self.var_email.get()):
+                messagebox.showerror("Lỗi", "Vui lòng nhập địa chỉ email hợp lệ.", parent=self.root)
+                return
+
+            # Kiểm tra số điện thoại có 10 chữ số
+            if not re.match(r"^[0-9]{10}$", self.var_phone.get()):
+                messagebox.showerror("Lỗi", "Vui lòng nhập số điện thoại gồm 10 chữ số.", parent=self.root)
+                return
+
             try:
                 conn = pyodbc.connect(
                     'DRIVER={ODBC Driver 17 for SQL Server};'
                     'SERVER=DESKTOP-NJ3K8EH\SQLEXPRESS;'
-                    'DATABASE=Face_Recognition;'
-                    'UID=219819;'
+                    'DATABASE=Face_Recog;'
+                    'UID=adminTT;'
                     'PWD=123;'
                     'Trusted_Connection=yes;'
                 )
                 my_cursor = conn.cursor()
-                my_cursor.execute("Insert into Students VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",(
+                my_cursor.execute("Insert into Students VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",(
                                                                                         self.var_dep.get(),
-                                                                                        self.var_course.get(),
                                                                                         self.var_year.get(),
                                                                                         self.var_semester.get(),
                                                                                         self.var_std_id.get(),
                                                                                         self.var_std_name.get(),
-                                                                                        self.var_div.get(),
-                                                                                        self.var_roll.get(),
+                                                                                        self.var_class.get(),
                                                                                         self.var_gender.get(),
                                                                                         self.var_dob.get(),
                                                                                         self.var_email.get(),
@@ -347,9 +353,9 @@ class Student:
                 conn.commit()
                 self.fetch_data()
                 conn.close()
-                messagebox.showinfo("Success", "Student details has been", parent=self.root)
+                messagebox.showinfo("Thông Báo", "Lưu Thông Tin Sinh Viên Thành Công!", parent=self.root)
             except Exception as e:
-                messagebox.showerror("Error", f"Due To: {str(e)}", parent=self.root)
+                messagebox.showerror("Lỗi", f"Due To: {str(e)}", parent=self.root)
 
 
 
@@ -357,8 +363,8 @@ class Student:
         conn = pyodbc.connect(
             'DRIVER={ODBC Driver 17 for SQL Server};'
             'SERVER=DESKTOP-NJ3K8EH\SQLEXPRESS;'
-            'DATABASE=Face_Recognition;'
-            'UID=219819;'
+            'DATABASE=Face_Recog;'
+            'UID=adminTT;'
             'PWD=123;'
             'Trusted_Connection=yes;'
         )
@@ -367,9 +373,9 @@ class Student:
         data = my_cursor.fetchall()
 
         if len(data) != 0:
-            self.student_table.delete(*self.student_table.get_children())
+            self.tree.delete(*self.tree.get_children())
             for i in data:
-                self.student_table.insert("", END, values=i)
+                self.tree.insert("", tk.END, values=i)
             conn.commit()
         conn.close()
 
@@ -377,54 +383,76 @@ class Student:
     # get cursor
 
     def get_cursor(self, event = ""):
-        cursor_focus = self.student_table.focus()
-        content = self.student_table.item(cursor_focus)
+        cursor_focus = self.tree.focus()
+        content = self.tree.item(cursor_focus)
         data = content["values"]
         self.var_dep.set(data[0])
-        self.var_course.set(data[1])
-        self.var_year.set(data[2])
-        self.var_semester.set(data[3])
-        self.var_std_id.set(data[4])
-        self.var_std_name.set(data[5])
-        self.var_div.set(data[6])
-        self.var_roll.set(data[7])
-        self.var_gender.set(data[8])
-        self.var_dob.set(data[9])
-        self.var_email.set(data[10])
-        self.var_phone.set(data[11])
-        self.var_address.set(data[12])
-        self.var_teacher.set(data[13])
-        self.var_radio1.set(data[14])
+        self.var_year.set(data[1])
+        self.var_semester.set(data[2])
+        self.var_std_id.set(data[3])
+        self.var_std_name.set(data[4])
+        self.var_class.set(data[5])
+        self.var_gender.set(data[6])
+        self.var_dob.set(data[7])
+        self.var_email.set(data[8])
+        self.var_phone.set(data[9])
+        self.var_address.set(data[10])
+        self.var_teacher.set(data[11])
+        self.var_radio1.set(data[12])
 
 
     #update function
 
     def update_data(self):
-        if self.var_dep.get() == "Select Department" or self.var_std_name.get() == "" or self.var_std_id.get() == "":
-            messagebox.showerror("Error", "All fields are required", parent=self.root)
+        if (self.var_dep.get() == "Chọn Khoa" or
+                self.var_year.get() == "Chọn Năm" or
+                self.var_semester.get() == "Chọn Học Kỳ" or
+                self.var_std_name.get() == "" or
+                self.var_std_id.get() == "" or
+                self.var_gender.get() == "Chọn Giới Tính" or
+                self.var_email.get() == "" or
+                self.var_phone.get() == "" or
+                self.var_address.get() == "" or
+                self.var_teacher.get() == "" or
+                self.var_radio1.get() == ""):
+            messagebox.showerror("Lỗi", "Tất cả các trường là bắt buộc", parent=self.root)
         else:
+            # Kiểm tra các ô combobox đã được chọn đúng giá trị
+            if ("Chọn" in [self.var_dep.get(), self.var_year.get(), self.var_semester.get(),
+                           self.var_gender.get()]):
+                messagebox.showerror("Lỗi", "Vui lòng chọn một tùy chọn hợp lệ từ combobox.",
+                                     parent=self.root)
+                return
+
+            # Kiểm tra định dạng email
+            if not re.match(r"[^@]+@[^@]+\.[^@]+", self.var_email.get()):
+                messagebox.showerror("Lỗi", "Vui lòng nhập địa chỉ email hợp lệ.", parent=self.root)
+                return
+
+            # Kiểm tra số điện thoại có 10 chữ số
+            if not re.match(r"^[0-9]{10}$", self.var_phone.get()):
+                messagebox.showerror("Lỗi", "Vui lòng nhập số điện thoại gồm 10 chữ số.", parent=self.root)
+                return
             try:
-                Update = messagebox.askyesno("Update", "Do u want to update this student details", parent=self.root)
+                Update = messagebox.askyesno("Thông Báo", "Chắc Chắn Rằng Bạn Muốn Cập Nhật!", parent=self.root)
                 if Update > 0:
                     conn = pyodbc.connect(
                         'DRIVER={ODBC Driver 17 for SQL Server};'
                         'SERVER=DESKTOP-NJ3K8EH\SQLEXPRESS;'
-                        'DATABASE=Face_Recognition;'
-                        'UID=219819;'
+                        'DATABASE=Face_Recog;'
+                        'UID=adminTT;'
                         'PWD=123;'
                         'Trusted_Connection=yes;'
                     )
                     my_cursor = conn.cursor()
                     my_cursor.execute(
-                        "Update Students Set Department=?, Course=?, Year=?, Semester=?, Name=?, Division=?, Roll=?, Gender=?, DoB=?, Email=?, Phone=?, Address=?, Teacher=?, PhotoSample=? WHERE Student_ID=?",
+                        "Update Students Set Department=?, Year=?, Semester=?, Name=?, Class=?, Gender=?, DoB=?, Email=?, Phone=?, Address=?, Teacher=?, PhotoSample=? WHERE Student_ID=?",
                         (
                             self.var_dep.get(),
-                            self.var_course.get(),
                             self.var_year.get(),
                             self.var_semester.get(),
                             self.var_std_name.get(),
-                            self.var_div.get(),
-                            self.var_roll.get(),
+                            self.var_class.get(),
                             self.var_gender.get(),
                             self.var_dob.get(),
                             self.var_email.get(),
@@ -437,27 +465,28 @@ class Student:
                 else:
                     if not Update:
                         return
-                messagebox.showinfo("Success", "Student details successfully update completed", parent=self.root)
+                messagebox.showinfo("Thông Báo", "Cập Nhật Thông Tin Sinh Viên Thành Công!", parent=self.root)
                 conn.commit()
                 self.fetch_data()
                 conn.close()
             except Exception as e:
-                messagebox.showerror("Error", f"Due To: {str(e)}", parent = self.root )
+                messagebox.showerror("Lỗi", f"Due To: {str(e)}", parent = self.root )
 
 
     # delete function
     def delete_data(self):
         if self.var_std_id.get() == "":
-            messagebox.showerror("Error", "Student id must be required", parent=self.root)
+            pass
         else:
+            messagebox.showerror("Lỗi", "Tất cả các trường là bắt buộc", parent=self.root)
             try:
-                delete = messagebox.askyesno("Student Delete Page", "Do u want to delete this student", parent = self.root)
+                delete = messagebox.askyesno("Xóa Thông Tin Sinh Viên", "Chắc Chắn Rằng Bạn Muốn Xóa", parent = self.root)
                 if delete > 0:
                     conn = pyodbc.connect(
                         'DRIVER={ODBC Driver 17 for SQL Server};'
                         'SERVER=DESKTOP-NJ3K8EH\SQLEXPRESS;'
-                        'DATABASE=Face_Recognition;'
-                        'UID=219819;'
+                        'DATABASE=Face_Recog;'
+                        'UID=adminTT;'
                         'PWD=123;'
                         'Trusted_Connection=yes;'
                     )
@@ -471,22 +500,20 @@ class Student:
                 conn.commit()
                 self.fetch_data()
                 conn.close()
-                messagebox.showinfo("Delete", "Succesully", parent = self.root)
+                messagebox.showinfo("Thông Báo", "Xóa Thành Công!", parent = self.root)
             except Exception as e:
-               messagebox.showerror("Error", f"Due To: {str(e)}", parent=self.root)
+                messagebox.showerror("Error", f"Due To: {str(e)}", parent=self.root)
 
     #reset function
 
     def reset_data(self):
-        self.var_dep.set("Select Department")
-        self.var_course.set("Select Course")
-        self.var_year.set("Select Year")
-        self.var_semester.set("Select Semester")
+        self.var_dep.set("Chọn Khoa")
+        self.var_year.set("Chọn Năm Học")
+        self.var_semester.set("Chọn Học Kỳ")
         self.var_std_id.set("")
         self.var_std_name.set("")
-        self.var_div.set("")
-        self.var_roll.set("")
-        self.var_gender.set("Select Gender")
+        self.var_class.set("")
+        self.var_gender.set("Chọn Giới Tính")
         self.var_dob.set("")
         self.var_email.set("")
         self.var_phone.set("")
@@ -497,15 +524,15 @@ class Student:
     # generate data set or take photo samples
     def generate_dataset(self):
         if self.var_dep.get() == "Select Department" or self.var_std_name.get() == "" or self.var_std_id.get() == "":
-            messagebox.showerror("Error", "All fields are required", parent=self.root)
+            messagebox.showerror("Lỗi", "Cần Điền Đầy Đủ Thông Tin!", parent=self.root)
         else:
             try:
                 std_id = self.var_std_id.get()
                 conn = pyodbc.connect(
                     'DRIVER={ODBC Driver 17 for SQL Server};'
                     'SERVER=DESKTOP-NJ3K8EH\SQLEXPRESS;'
-                    'DATABASE=Face_Recognition;'
-                    'UID=219819;'
+                    'DATABASE=Face_Recog;'
+                    'UID=adminTT;'
                     'PWD=123;'
                     'Trusted_Connection=yes;'
                 )
@@ -516,15 +543,13 @@ class Student:
                 for x in my_result:
                     id += 1
                 my_cursor.execute(
-                    "Update Students Set Department=?, Course=?, Year=?, Semester=?, Name=?, Division=?, Roll=?, Gender=?, DoB=?, Email=?, Phone=?, Address=?, Teacher=?, PhotoSample=? WHERE Student_ID=?",
+                    "Update Students Set Department=?, Year=?, Semester=?, Name=?, Class=?, Gender=?, DoB=?, Email=?, Phone=?, Address=?, Teacher=?, PhotoSample=? WHERE Student_ID=?",
                     (
                         self.var_dep.get(),
-                        self.var_course.get(),
                         self.var_year.get(),
                         self.var_semester.get(),
                         self.var_std_name.get(),
-                        self.var_div.get(),
-                        self.var_roll.get(),
+                        self.var_class.get(),
                         self.var_gender.get(),
                         self.var_dob.get(),
                         self.var_email.get(),
@@ -566,18 +591,28 @@ class Student:
                         cv2.putText(face, str(img_id), text_position, cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2)
 
                         # cv2.putText(face, str(img_id), cv2.FONT_HERSHEY_COMPLEX, 2, (0, 255, 0), 2)
-                        cv2.imshow("Cropped Face", face)
+                        cv2.imshow("Thêm Ảnh Mẫu Nhận Diện", face)
 
                     if cv2.waitKey(1) == 13 or int(img_id) == 100:
                         break
                 cap.release()
                 cv2.destroyAllWindows()
-                messagebox.showinfo("Result", "Generate data sets completed ")
+                messagebox.showinfo("Thông Báo", "Thêm Ảnh Thành Công")
 
             except Exception as e:
-                messagebox.showerror("Error", f"Due To: {str(e)}", parent=self.root)
+                messagebox.showerror("Lỗi", f"Due To: {str(e)}", parent=self.root)
 
-if __name__ == '__main__':
-    root = Tk()
-    obj = Student(root)
+    def open_main_window(self):
+        self.root.destroy()  # Đóng cửa sổ của file student
+        import main  # Import file main
+        main.open_main_window()
+
+def open_student_window():
+    root = ctk.CTk()
+    app = Student(root)
     root.mainloop()
+
+# if __name__ == "__main__":
+#     root = ctk.CTk()
+#     app = Student(root)
+#     root.mainloop()
